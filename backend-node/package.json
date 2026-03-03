@@ -1,0 +1,16 @@
+{
+  "name": "ecommerce-backend-node",
+  "version": "1.0.0",
+  "description": "中型電商專案 Node.js 後端骨架",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
