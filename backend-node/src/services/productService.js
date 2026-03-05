@@ -11,7 +11,7 @@ const productModel = require('../models/productModel');
  */
 const getAllProducts = async () => {
   // 直接回傳所有產品，無額外邏輯；使用 await 等待結果（或直接回傳 Promise）
-  return await productModel.findAll();
+  return  productModel.findAll();
 };
 
 /**

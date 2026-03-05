@@ -4,6 +4,7 @@
  * 符合單一責任：只處理HTTP層面，不包含業務邏輯或資料存取
  */
 const productService = require('../services/productService');
+const { successResponse } = require('../utils/responseHelper');
 
 /**
  * GET /api/products
@@ -14,7 +15,7 @@ const productService = require('../services/productService');
 const getProducts = async (req, res, next) => {
   try {
     const products = await productService.getAllProducts();
-    res.status(200).json(products);
+    successResponse(res, products);
   } catch (err) {
     next(err); // 將錯誤傳遞給錯誤處理中間件
   }
@@ -39,8 +40,7 @@ const getProductById = async (req, res, next) => {
     }
     // 直接 await 非同步結果，若有錯誤會被 catch 捕獲
     const data = await productService.getProductById(productId)  // ← 直接 await 非同步結果
-    res.json(data)
-
+    successResponse(res, data);
   } catch (err) {
     next(err)  // ← 一樣丟給 middleware
   }

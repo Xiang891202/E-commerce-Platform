@@ -14,14 +14,22 @@
 // 便于扩展和维护
 // 如果需要修改错误响应格式或添加新的错误类型（如自定义错误类），只需修改中间件一处，而不必遍历所有控制器。
 
+const { errorResponse } = require('../utils/responseHelper');
+
+// 统一错误响应格式
+// 通过错误处理中间件，可以确保所有错误响应都遵循相同的格式（如 { success: false, message: 'Error message' }），提高前端处理错误的便利性。
+const asyncHandler = (fn) => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next)
+}
+
 //同步接收 model & service 錯誤訊息
 const errorMiddleware = (err, req, res, next) => {
   const statusCode = err.statusCode || 500
 
-  res.status(statusCode).json({
-    success: false,
-    message: err.message
-  })
+  //logging
+  console.error(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} - ${err.message}`)
+
+  errorResponse(res, err.message, statusCode)
 }
 
 module.exports = {
