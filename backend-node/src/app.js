@@ -5,6 +5,7 @@
  */
 const express = require('express');
 const productRoutes = require('./routes/productRoutes');
+const { errorMiddleware } = require('./middleware/errorMiddleware');
 
 const app = express();
 
@@ -13,6 +14,9 @@ app.use(express.json());
 
 // 掛載產品相關路由，前綴 /api/products
 app.use('/api/products', productRoutes);
+
+// 全域錯誤處理中間件，應放在所有路由之後，確保能捕獲所有錯誤
+app.use(errorMiddleware); 
 
 // 健康檢查端點（可選）
 app.get('/health', (req, res) => {

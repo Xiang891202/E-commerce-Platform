@@ -10,9 +10,14 @@ const productService = require('../services/productService');
  * @param {Object} req - Express請求物件
  * @param {Object} res - Express回應物件
  */
-const getProducts = (req, res) => {
-  const products = productService.getAllProducts();
-  res.status(200).json(products);
+
+const getProducts = async (req, res, next) => {
+  try {
+    const products = await productService.getAllProducts();
+    res.status(200).json(products);
+  } catch (err) {
+    next(err); // 將錯誤傳遞給錯誤處理中間件
+  }
 };
 
 /**
@@ -20,21 +25,25 @@ const getProducts = (req, res) => {
  * @param {Object} req - Express請求物件
  * @param {Object} res - Express回應物件
  */
-const getProductById = (req, res) => {
-  const id = parseInt(req.params.id, 10);
 
-  // 驗證ID是否為有效數字
-  if (isNaN(id) || id <= 0) {
-    return res.status(400).json({ error: '產品ID必須為正整數' });
+
+// 非同步處理 回傳給 errorMiddleware.js
+const getProductById = async (req, res, next) => {
+  //將 id 轉為數字
+  const productId = Number(req.params.id);
+  try {
+    if (isNaN(productId) || productId <= 0) {
+      const err = new Error('產品ID必須為正整數')
+      err.statusCode = 400
+      throw err   // ← 同步 throw
+    }
+    // 直接 await 非同步結果，若有錯誤會被 catch 捕獲
+    const data = await productService.getProductById(productId)  // ← 直接 await 非同步結果
+    res.json(data)
+
+  } catch (err) {
+    next(err)  // ← 一樣丟給 middleware
   }
-
-  const product = productService.getProductById(id);
-
-  if (!product) {
-    return res.status(404).json({ error: '找不到該產品' });
-  }
-
-  res.status(200).json(product);
-};
+}
 
 module.exports = { getProducts, getProductById };
