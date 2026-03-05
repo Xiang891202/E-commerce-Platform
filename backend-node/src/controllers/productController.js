@@ -5,6 +5,7 @@
  */
 const productService = require('../services/productService');
 const { successResponse } = require('../utils/responseHelper');
+const { asyncHandler } = require('../middleware/errorMiddleware'); // 引入 asyncHandler
 
 /**
  * GET /api/products
@@ -13,12 +14,10 @@ const { successResponse } = require('../utils/responseHelper');
  */
 
 const getProducts = async (req, res, next) => {
-  try {
-    const products = await productService.getAllProducts();
-    successResponse(res, products);
-  } catch (err) {
-    next(err); // 將錯誤傳遞給錯誤處理中間件
-  }
+  asyncHandler(async () => {
+     const products = await productService.getAllProducts();
+     successResponse(res, products);
+  }).catch(next); // 捕获 asyncHandler 中的错误并传递给错误处理中间件
 };
 
 /**
@@ -30,20 +29,15 @@ const getProducts = async (req, res, next) => {
 
 // 非同步處理 回傳給 errorMiddleware.js
 const getProductById = async (req, res, next) => {
-  //將 id 轉為數字
+  // 驗證ID參數（基本驗證，實際可根據需求加強）
   const productId = Number(req.params.id);
-  try {
-    if (isNaN(productId) || productId <= 0) {
-      const err = new Error('產品ID必須為正整數')
-      err.statusCode = 400
-      throw err   // ← 同步 throw
-    }
-    // 直接 await 非同步結果，若有錯誤會被 catch 捕獲
-    const data = await productService.getProductById(productId)  // ← 直接 await 非同步結果
-    successResponse(res, data);
-  } catch (err) {
-    next(err)  // ← 一樣丟給 middleware
+  if (isNaN(productId) || productId <= 0) {
+    const err = new Error('產品ID必須為正整數');
+    err.statusCode = 400;
+    throw err;  // 直接拋出，asyncHandler 會捕獲
   }
-}
+  const data = await productService.getProductById(productId);
+  successResponse(res, data);
+};
 
 module.exports = { getProducts, getProductById };
