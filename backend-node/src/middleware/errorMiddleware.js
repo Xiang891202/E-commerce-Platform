@@ -1,38 +1,18 @@
-//AI生成的错误处理中间件，集中处理应用中的错误，提供统一的错误响应和日志记录机制。
-// 集中管理、避免重复
-// 错误处理逻辑（如统一响应格式、记录日志、区分环境返回不同信息）如果分散在每个控制器中，会导致大量重复代码。通过中间件集中处理，只需写一次，所有路由都能复用。
-
-// 捕获所有路由和中间件的错误
-// Express 的错误处理中间件可以捕获整个请求-响应周期中发生的错误（包括同步和异步错误），无论是路由处理函数、其他中间件还是服务层抛出的异常，都能被统一捕获。
-
-// 与业务逻辑解耦
-// 控制器和服务层应专注于业务逻辑，只需在发生错误时通过 throw 或 next(err) 将错误传递给下一个中间件，无需关心如何响应客户端。这样代码更清晰，也更容易测试。
-
-// 支持异步错误处理
-// 在 Node.js 中，异步操作（如数据库查询）的错误如果未被捕获，会导致进程崩溃。通过将错误传递给 next()，再由错误处理中间件统一处理，可以避免崩溃并提供友好反馈。
-
-// 便于扩展和维护
-// 如果需要修改错误响应格式或添加新的错误类型（如自定义错误类），只需修改中间件一处，而不必遍历所有控制器。
 
 const { errorResponse } = require('../utils/responseHelper');
+const { logger } = require('../utils/logger');
 
-// 统一错误响应格式
-// 通过错误处理中间件，可以确保所有错误响应都遵循相同的格式（如 { success: false, message: 'Error message' }），提高前端处理错误的便利性。
-const asyncHandler = (fn) => (req, res, next) => {
-  Promise.resolve(fn(req, res, next)).catch(next)
-}
 
 //同步接收 model & service 錯誤訊息
 const errorMiddleware = (err, req, res, next) => {
   const statusCode = err.statusCode || 500
 
   //logging
-  console.error(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} - ${err.message}`)
+  logger.error(`${req.method} ${req.originalUrl} - ${err.message}`)
 
-  errorResponse(res, err.message, statusCode)
+  res.status(statusCode).json(errorResponse(err.message))
 }
 
 module.exports = {
   errorMiddleware,
-  asyncHandler
 };

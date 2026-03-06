@@ -5,7 +5,7 @@
  */
 const productService = require('../services/productService');
 const { successResponse } = require('../utils/responseHelper');
-const { asyncHandler } = require('../middleware/errorMiddleware'); // 引入 asyncHandler
+const { asyncHandler } = require('../utils/asyncHandler'); // 引入 asyncHandler
 
 /**
  * GET /api/products

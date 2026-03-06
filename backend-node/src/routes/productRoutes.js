@@ -8,7 +8,7 @@ const router = express.Router();
 const productController = require('../controllers/productController');
 
 // GET /api/products/:id
-const { asyncHandler } = require('../middleware/errorMiddleware'); // 先引入
+const { asyncHandler } = require('../utils/asyncHandler'); // 先引入
 
 router.get('/:id', asyncHandler(productController.getProductById)); // 再使用
 
